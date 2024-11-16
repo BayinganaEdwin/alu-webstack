@@ -33,19 +33,21 @@ defaults
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
 
-frontend clickviral-frontend
-        bind *:80
-        mode http
-        http-request redirect scheme https code 301 unless { ssl_fc }
-        http-request set-header X_Forwarded-Proto http
-        default_backend clickviral-backend
+frontend http_front
+    bind *:80
+    stats uri /stats
+    default_backend web-backend
+    mode http
+    http-request redirect scheme https code 301 unless { ssl_fc }
+    http-request set-header X_Forwarded-Proto http
 
-frontend clickviral-frontend-https
-        bind *:443 ssl crt /etc/haproxy/certs/clickviral.tech.pem
-        http-request set-header X-Forwarded-Proto https
-        default_backend clickviral-backend
+frontend https_front
+    bind *:443 ssl crt /etc/letsencrypt/live/www.edwinbayingana.tech/haproxy.pem
+    http-request set-header X_Forwarded-Proto https
+    default_backend web-backend
 
-backend clickviral-backend
+
+backend web-backend
         balance roundrobin
-        server 6263-web-01 54.221.3.158:80 check
-        server 6263-web-01 3.90.252.169:80 check
+        server 6288-web-01 52.201.243.161:80 check
+        server 6288-web-02 3.80.227.216:80 check
